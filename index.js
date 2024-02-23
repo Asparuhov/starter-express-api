@@ -11,18 +11,16 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 
 // MongoDB connection
-mongoose.connect(
-  process.env.KEY,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+mongoose.connect(process.env.KEY, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 // Define the schema for face data
 const faceSchema = new mongoose.Schema({
   descriptor: Array,
   scores: Array,
+  redness: Array,
 });
 
 const Face = mongoose.model("Face", faceSchema);
@@ -54,13 +52,12 @@ app.get("/test", async (req, res) => {
 });
 app.post("/detectFace", async (req, res) => {
   try {
-    const { descriptor, scores } = req.body;
-    console.log(descriptor, scores);
+    const { descriptor, scores, redness } = req.body;
 
     // Fetch all faces from the database
     const databaseFaces = await Face.find(
       {},
-      { _id: 0, descriptor: 1, scores: 1 }
+      { _id: 0, descriptor: 1, scores: 1, redness: 1 }
     );
 
     // Replace this logic with your own matching logic
@@ -69,12 +66,17 @@ app.post("/detectFace", async (req, res) => {
     if (matchingFace) {
       // Matching face found, return scores to the frontend
       console.log("Matching Face:", matchingFace);
-      res.status(200).json({ message: "match", scores: matchingFace.scores });
+      res.status(200).json({
+        message: "match",
+        scores: matchingFace.scores,
+        redness: matchingFace.redness,
+      });
     } else {
       res.status(200).json({ message: "no match" });
       const newFace = new Face({
         descriptor,
-        scores, // Assuming scores is an array provided by the frontend
+        scores,
+        redness,
       });
 
       await newFace.save();
