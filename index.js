@@ -12,7 +12,7 @@ app.use(cors());
 
 // MongoDB connection
 mongoose.connect(
-  "mongodb+srv://kris:1234@tinder-cluster.ggfpglr.mongodb.net/?retryWrites=true&w=majority&appName=Tinder-Cluster",
+  process.env.KEY,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
